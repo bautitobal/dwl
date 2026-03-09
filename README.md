@@ -1,216 +1,211 @@
-# dwl - dwm for Wayland
+# dwl (my configuration)
 
-Join us on our [Discord server]  
-Or Matrix: [#dwl-official:matrix.org]  
-Or on our IRC channel: [#dwl on Libera Chat]
+<!-- TODO: add rice screenshot -->  
 
-dwl is a compact, hackable compositor for [Wayland] based on [wlroots]. It is
-intended to fill the same space in the Wayland world that [dwm] does in X11,
-primarily in terms of functionality, and secondarily in terms of
-philosophy. Like [dwm], dwl is:
+Personal build of **dwl** (a dwm Wayland compositor) with patches and a configuration focused on:
 
-- Easy to understand, hack on, and extend with patches
-- One C source file (or a very small number) configurable via `config.h`
-- Tied to as few external dependencies as possible
+- gaps + smartgaps
+- bar
+- autostart
+- follow (follow windows when sending them to another tag)
+- directional swap/focus (vim keys / arrow keys)
 
-## Getting Started:
+> Note: dwl is configured by compiling (like dwm). Changes in `config.h`/`config.def.h` require rebuilding and restarting your Wayland session.
 
-### Latest semi-stable [release]
-This is probably where you want to start. This builds against the [wlroots]
-versions currently shipping in major distributions. If your
-distribution's `wlroots` version is older, use an earlier dwl [release].
-The `wlroots` version against which a given `dwl` release builds is specified
-with each release on the [release] page
+## Included patches
 
-### Development branch [main]
-Active development progresses on the `main` branch. The `main` branch is built
-against the latest release of [wlroots]. PRs should target this branch unless they
-depend on functionality that is not in the current release of `wlroots`.
+- [follow](https://codeberg.org/dwl/dwl-patches/src/branch/main/patches/follow)
+- [swapandfocusdir](https://codeberg.org/dwl/dwl-patches/src/branch/main/patches/swapandfocusdir)
+- [autostart](https://codeberg.org/dwl/dwl-patches/src/branch/main/patches/autostart)
+- [gaps](https://codeberg.org/dwl/dwl-patches/src/branch/main/patches/gaps)
+- [bar](https://codeberg.org/dwl/dwl-patches/src/branch/main/patches/bar)
 
-### Preview branch [wlroots-next]
-The `wlroots-next` branch is built against the git version of [wlroots], which
-is unstable and changes frequently. PRs requiring functionality from the git
-version of `wlroots` should target this branch.
+## Dependencies
 
-### Building dwl
-dwl has the following dependencies:
-- libinput
+### Build dependencies
+
+Dependencies (they vary by distro):
+
 - wayland
-- wlroots (compiled with the libinput backend)
+- wlroots (in this repo: `wlroots-0.19`)
+- libinput
 - xkbcommon
-- wayland-protocols (compile-time only)
-- pkg-config (compile-time only)
+- pixman
+- fcft
+- wayland-protocols (build-time only)
+- pkg-config (build-time only)
+- wayland-scanner
 
-dwl has the following additional dependencies if XWayland support is enabled:
-- libxcb
-- libxcb-wm
-- wlroots (compiled with X11 support)
-- Xwayland (runtime only)
+#### XWayland (optional)
 
-Install these (and their `-devel` versions if your distro has separate
-development packages) and run `make`. If you wish to build against a released
-version of wlroots (*you probably do*), use a [release] or a [0.x branch]. If
-you want to use the unstable development `main` branch, you need to use the git
-version of [wlroots].
+In this repo it is **enabled** in `config.mk` (`XWAYLAND = -DXWAYLAND`). If you want it:
 
-To enable XWayland, you should uncomment its flags in `config.mk`.
+- Xwayland (runtime)
+- xcb and xcb-icccm (development/headers)
 
-## Configuration
+If you do not want XWayland, comment out `XWAYLAND`/`XLIBS` in `config.mk` and rebuild.
 
-All configuration is done by editing `config.h` and recompiling, in the same
-manner as [dwm]. There is no way to separately restart the window manager in
-Wayland without restarting the entire display server, so any changes will take
-effect the next time dwl is executed.
+### Runtime dependencies for my config
 
-As in the [dwm] community, we encourage users to share patches they have
-created. Check out the [dwl-patches] repository!
+These programs are launched by keybinds or autostart. You can change them in `config.def.h` if you use alternatives.
 
-## Running dwl
+- Terminal: `foot`
+- File manager: `thunar`
+- Launcher: `wmenu-run`
+- Browser: `brave`
+- Locker: `hyprlock`
+- Wallpaper picker: `waypaper`
+- Notifications: `mako`
+- Clipboard history: `cliphist`
+- Clipboard (Wayland): `wl-clipboard` (`wl-copy`, `wl-paste`)
+- Menu for choosing clipboard entries: `rofi` (used by the cliphist command)
+- Logout menu: `wlogout`
 
-dwl can be run on any of the backends supported by wlroots. This means you can
-run it as a separate window inside either an X11 or Wayland session, as well as
-directly from a VT console. Depending on your distro's setup, you may need to
-add your user to the `video` and `input` groups before you can run dwl on a
-VT. If you are using `elogind` or `systemd-logind` you need to install polkit;
-otherwise you need to add yourself in the `seat` group and enable/start the
-seatd daemon.
+## Install
 
-When dwl is run with no arguments, it will launch the server and begin handling
-any shortcuts configured in `config.h`. There is no status bar or other
-decoration initially; these are instead clients that can be run within the
-Wayland session. Do note that the default background color is grey. This can be
-modified in `config.h`.
+### 1) Build
 
-If you would like to run a script or command automatically at startup, you can
-specify the command using the `-s` option. This command will be executed as a
-shell command using `/bin/sh -c`.  It serves a similar function to `.xinitrc`,
-but differs in that the display server will not shut down when this process
-terminates. Instead, dwl will send this process a SIGTERM at shutdown and wait
-for it to terminate (if it hasn't already). This makes it ideal for execing into
-a user service manager like [s6], [anopa], [runit], [dinit], or [`systemd
---user`].
+```sh
+make
+```
 
-Note: The `-s` command is run as a *child process* of dwl, which means that it
-does not have the ability to affect the environment of dwl or of any processes
-that it spawns. If you need to set environment variables that affect the entire
-dwl session, these must be set prior to running dwl. For example, Wayland
-requires a valid `XDG_RUNTIME_DIR`, which is usually set up by a session manager
-such as `elogind` or `systemd-logind`.  If your system doesn't do this
-automatically, you will need to configure it prior to launching `dwl`, e.g.:
+If you changed `config.def.h` and `config.h` already exists, it is usually best to force regeneration and rebuild:
 
-    export XDG_RUNTIME_DIR=/tmp/xdg-runtime-$(id -u)
-    mkdir -p $XDG_RUNTIME_DIR
-    dwl
+```sh
+rm -f config.h
+make clean
+make
+```
 
-### Status information
+### 2) Install
 
-Information about selected layouts, current window title, app-id, and
-selected/occupied/urgent tags is written to the stdin of the `-s` command (see
-the `STATUS INFORMATION` section in `_dwl_(1)`).  This information can be used to
-populate an external status bar with a script that parses the
-information. Failing to read this information will cause dwl to block, so if you
-do want to run a startup command that does not consume the status information,
-you can close standard input with the `<&-` shell redirection, for example:
+By default it installs into `/usr/local` (see `config.mk`):
 
-    dwl -s 'foot --server <&-'
+```sh
+sudo make install
+```
 
-If your startup command is a shell script, you can achieve the same inside the
-script with the line
+To install into `/usr`:
 
-    exec <&-
+```sh
+sudo make PREFIX=/usr install
+```
 
-To get a list of status bars that work with dwl consult our [wiki].
+This installs:
 
-### (Known) Java nonreparenting WM issue
-Certain IDEs don't display correctly unless an environmental variable for Java AWT
-indicates that the WM is nonreparenting.
+- binary: `PREFIX/bin/dwl`
+- manpage: `PREFIX/share/man/man1/dwl.1`
+- session file: `PREFIX/share/wayland-sessions/dwl.desktop`
 
-For some Java AWT-based IDEs, such as Xilinx Vivado and Microchip MPLAB X, the
-following environment variable needs to be set before running the IDE or dwl:
+### 3) Run
 
-    export _JAVA_AWT_WM_NONREPARENTING=1
+- From a display manager (GDM/SDDM/ly/etc): choose the **dwl** session.
+- From a TTY: run `dwl` (make sure logind/seatd is set up for your distro).
 
-## Replacements for X applications
+## Configuration overview
 
-You can find a [list of useful resources on our wiki].
+### Appearance
 
-## Background
+- `sloppyfocus = 1` (focus follows mouse)
+- gaps enabled (`gaps = 1`) with `gappx = 4`
+- `smartgaps = 1` (no outer gap when there is only one window)
+- `borderpx = 1`
+- bar enabled (`showbar = 1`) on top (`topbar = 1`)
+- font: `monospace:size=10`
 
-dwl is not meant to provide every feature under the sun. Instead, like [dwm], it
-sticks to features which are necessary, simple, and straightforward to implement
-given the base on which it is built. Implemented default features are:
+### Autostart
 
-- Any features provided by [dwm]/Xlib: simple window borders, tags, keybindings,
-  client rules, mouse move/resize. Providing a built-in status bar is an
-  exception to this goal, to avoid dependencies on font rendering and/or drawing
-  libraries when an external bar could work well.
-- Configurable multi-monitor layout support, including position and rotation
-- Configurable HiDPI/multi-DPI support
-- Idle-inhibit protocol which lets applications such as mpv disable idle
-  monitoring
-- Provide information to external status bars via stdout/stdin
-- Urgency hints via xdg-activate protocol
-- Support screen lockers via ext-session-lock-v1 protocol
-- Various Wayland protocols
-- XWayland support as provided by wlroots (can be enabled in `config.mk`)
-- Zero flickering - Wayland users naturally expect that "every frame is perfect"
-- Layer shell popups (used by Waybar)
-- Damage tracking provided by scenegraph API
+Launched at startup (autostart patch):
 
-Given the Wayland architecture, dwl has to implement features from [dwm] **and**
-the xorg-server. Because of this, it is impossible to maintain the original
-project goal of 2000 SLOC and have a reasonably complete compositor with
-features comparable to [dwm]. However, this does not mean that the code will grow
-indiscriminately. We will try to keep the code as small as possible.
+- `mako`
+- `swww-daemon &`
+- `wl-paste --watch cliphist store`
 
-Features under consideration (possibly as patches) are:
+Note: autostart executes programs directly (no shell). If something relies on `~` expansion or environment variables, use an absolute path or wrap it with `sh -c`.
 
-- Protocols made trivial by wlroots
-- Implement the text-input and input-method protocols to support IME once ibus
-  implements input-method v2 (see https://github.com/ibus/ibus/pull/2256 and
-  https://codeberg.org/dwl/dwl/pulls/235)
+## Keybinds
 
-Feature *non-goals* for the main codebase include:
+Mod = Windows/Super key (`WLR_MODIFIER_LOGO`).
 
-- Client-side decoration (any more than is necessary to tell the clients not to)
-- Client-initiated window management, such as move, resize, and close, which can
-  be done through the compositor
-- Animations and visual effects
+### Apps
 
-## Acknowledgements
+- Mod+Enter: terminal (`foot`)
+- Mod+e: file manager (`thunar`)
+- Mod+d: launcher (`wmenu-run`)
+- Mod+b: browser (`brave`)
+- Mod+Ctrl+Shift+l: lock (`hyprlock`)
+- Mod+Shift+w: wallpapers (`waypaper`)
+- Mod+v: clipboard menu (cliphist + rofi + wl-copy)
+- Mod+Shift+p: logout (`wlogout`)
 
-dwl began by extending the TinyWL example provided (CC0) by the sway/wlroots
-developers. This was made possible in many cases by looking at how sway
-accomplished something, then trying to do the same in as suckless a way as
-possible.
+### Window management
 
-Many thanks to suckless.org and the [dwm] developers and community for the
-inspiration, and to the various contributors to the project, including:
+- Mod+q: close focused window (kill)
+- Mod+m: quit dwl
+- Mod+Space: toggle floating
+- Mod+f: toggle fullscreen
+- Mod+x: toggle gaps
+- Mod+Shift+x: toggle bar
 
-- **Devin J. Pohly for creating and nurturing the fledgling project**
-- Alexander Courtis for the XWayland implementation
-- Guido Cella for the layer-shell protocol implementation, patch maintenance,
-  and for helping to keep the project running
-- Stivvo for output management and fullscreen support, and patch maintenance
+### Layouts
 
+- Mod+t: tiled (`[]=`)
+- Mod+g: floating (`><>`)
+- Mod+p: monocle (`[M]`)
 
-[wlroots]: https://gitlab.freedesktop.org/wlroots
-[dwm]: https://dwm.suckless.org/
-[`systemd --user`]: https://wiki.archlinux.org/title/Systemd/User
-[#dwl on Libera Chat]: https://web.libera.chat/?channels=#dwl
-[0.7-rc1]: https://codeberg.org/dwl/dwl/releases/tag/v0.7-rc1
-[0.x branch]: https://codeberg.org/dwl/dwl/branches
-[anopa]: https://jjacky.com/anopa/
-[dinit]: https://davmac.org/projects/dinit/
-[dwl-patches]: https://codeberg.org/dwl/dwl-patches
-[list of useful resources on our wiki]: https://codeberg.org/dwl/dwl/wiki/Home#migrating-from-x
-[main]: https://codeberg.org/dwl/dwl/src/branch/main
-[wlroots-next]: https://codeberg.org/dwl/dwl/src/branch/wlroots-next
-[release]: https://codeberg.org/dwl/dwl/releases
-[runit]: http://smarden.org/runit/faq.html#userservices
-[s6]: https://skarnet.org/software/s6/
-[wlroots]: https://gitlab.freedesktop.org/wlroots/wlroots/
-[wiki]: https://codeberg.org/dwl/dwl/wiki/Home#compatible-status-bars
-[Discord server]: https://discord.gg/jJxZnrGPWN
-[Wayland]: https://wayland.freedesktop.org/
-[#dwl-official:matrix.org]: https://matrix.to/#/#dwl-official:matrix.org
+### Directional focus
+
+- Mod+h/j/k/l: focus left/down/up/right
+- Mod+←/↓/↑/→: focus using arrow keys
+
+### Directional swap
+
+- Mod+Shift+h/j/k/l: swap left/down/up/right
+- Mod+Shift+←/↓/↑/→: swap using arrow keys
+
+### Master size
+
+- Mod+Ctrl+h: master -5%
+- Mod+Ctrl+l: master +5%
+- Mod+Ctrl+←: master -5%
+- Mod+Ctrl+→: master +5%
+
+### Promote to master
+
+- Mod+Shift+Enter: zoom (promote to master / swap with top)
+
+### Tags
+
+- Mod+[1-9]: view tag
+- Mod+Ctrl+[1-9]: toggle view tag
+- Mod+Shift+[1-9]: move window to tag
+- Mod+Ctrl+Shift+[1-9]: toggle tag on window
+- Mod+Tab: view previous selection
+
+### Monitors
+
+- Mod+,: focus left monitor
+- Mod+.: focus right monitor
+- Mod+Shift+<: move window to left monitor
+- Mod+Shift+>: move window to right monitor
+
+### TTY
+
+- Ctrl+Alt+XF86Switch_VT_[1-12]: switch VT
+- Ctrl+Alt+Terminate_Server: quit
+
+## Mouse bindings
+
+- Click layout symbol (bar):
+  - Left: tiled
+  - Right: monocle
+- Middle click on title (bar): zoom
+- Middle click on status (bar): terminal
+- Mod + drag Left on client: move (sets floating)
+- Mod + Middle on client: toggle floating
+- Mod + drag Right on client: resize (sets floating)
+- Click tagbar:
+  - Left: view
+  - Right: toggle view
+  - Mod+Left: tag
+  - Mod+Right: toggle tag
