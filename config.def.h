@@ -144,6 +144,19 @@ static const char *lockcmd[]      = { "hyprlock", NULL };
 static const char *waypapercmd[]  = { "waypaper", NULL };
 static const char *cliphistcmd[]  = { "sh", "-c", "cliphist list | rofi -dmenu | cliphist decode | wl-copy", NULL };
 static const char *logoutcmd[]    = { "wlogout", NULL };
+static const char *screenshot_copy[]   = { "sh", "-c", "~/dotfiles/scripts/screenshot.sh copy", NULL };
+static const char *screenshot_area[]   = { "sh", "-c", "~/dotfiles/scripts/screenshot.sh area", NULL };
+static const char *screenshot_monitor[] = { "sh", "-c", "~/dotfiles/scripts/screenshot.sh monitor", NULL };
+static const char *screenshot_all[]    = { "sh", "-c", "~/dotfiles/scripts/screenshot.sh all", NULL };
+static const char *vol_up[]   = { "sh", "-c", "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ && ~/.config/hypr/scripts/notifications.sh volume", NULL };
+static const char *vol_down[] = { "sh", "-c", "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && ~/.config/hypr/scripts/notifications.sh volume", NULL };
+static const char *vol_mute[] = { "sh", "-c", "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && ~/.config/hypr/scripts/notifications.sh mute", NULL };
+static const char *mic_mute[] = { "sh", "-c", "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle && ~/.config/hypr/scripts/notifications.sh mute", NULL };
+static const char *brightness_up[]   = { "sh", "-c", "brightnessctl s 10%+ && ~/.config/hypr/scripts/notifications.sh brightness", NULL };
+static const char *brightness_down[] = { "sh", "-c", "brightnessctl s 10%- && ~/.config/hypr/scripts/notifications.sh brightness", NULL };
+static const char *player_next[]  = { "playerctl", "next", NULL };
+static const char *player_prev[]  = { "playerctl", "previous", NULL };
+static const char *player_pause[] = { "playerctl", "play-pause", NULL };
 
 static const Key keys[] = {
 	/* Apps */
@@ -215,6 +228,28 @@ static const Key keys[] = {
 	{ MODKEY,                                    XKB_KEY_period,      focusmon,         {.i = WLR_DIRECTION_RIGHT} },
 	{ MODKEY|WLR_MODIFIER_SHIFT,                 XKB_KEY_less,        tagmon,           {.i = WLR_DIRECTION_LEFT} },
 	{ MODKEY|WLR_MODIFIER_SHIFT,                 XKB_KEY_greater,     tagmon,           {.i = WLR_DIRECTION_RIGHT} },
+
+	/* screenshots */
+	{ 0,                    XKB_KEY_Print, spawn, {.v = screenshot_copy } },
+	{ WLR_MODIFIER_SHIFT,   XKB_KEY_Print, spawn, {.v = screenshot_area } },
+	{ WLR_MODIFIER_CTRL,    XKB_KEY_Print, spawn, {.v = screenshot_monitor } },
+	{ WLR_MODIFIER_ALT,     XKB_KEY_Print, spawn, {.v = screenshot_all } },
+
+	/* audio */
+	{ 0, XKB_KEY_XF86AudioRaiseVolume, spawn, {.v = vol_up } },
+	{ 0, XKB_KEY_XF86AudioLowerVolume, spawn, {.v = vol_down } },
+	{ 0, XKB_KEY_XF86AudioMute,        spawn, {.v = vol_mute } },
+	{ 0, XKB_KEY_XF86AudioMicMute,     spawn, {.v = mic_mute } },
+
+	/* brightness */
+	{ 0, XKB_KEY_XF86MonBrightnessUp,   spawn, {.v = brightness_up } },
+	{ 0, XKB_KEY_XF86MonBrightnessDown, spawn, {.v = brightness_down } },
+
+	/* media */
+	{ 0, XKB_KEY_XF86AudioNext,  spawn, {.v = player_next } },
+	{ 0, XKB_KEY_XF86AudioPrev,  spawn, {.v = player_prev } },
+	{ 0, XKB_KEY_XF86AudioPlay,  spawn, {.v = player_pause } },
+	{ 0, XKB_KEY_XF86AudioPause, spawn, {.v = player_pause } },
 
 	TAGKEYS(                      XKB_KEY_1, XKB_KEY_exclam,        0),
 	TAGKEYS(                      XKB_KEY_2, XKB_KEY_at,            1),
