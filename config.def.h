@@ -3,25 +3,28 @@
                         ((hex >> 16) & 0xFF) / 255.0f, \
                         ((hex >> 8) & 0xFF) / 255.0f, \
                         (hex & 0xFF) / 255.0f }
+
 /* appearance */
 static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
 static const int smartgaps                 = 1;  /* 1 means no outer gap when there is only one window */
 static int gaps                            = 1;  /* 1 means gaps between windows are added */
-static const unsigned int gappx            = 4; /* gap pixel between windows (default: 10) */
+static const unsigned int gappx            = 4;  /* gap pixel between windows */
 static const int follow                    = 1;  /* 1 means follow windows when sent to another tag */
-static const unsigned int borderpx         = 1;  /* border pixel of windows */
-static const int showbar                   = 1; /* 0 means no bar */
-static const int topbar                    = 1; /* 0 means bottom bar */
-static const char *fonts[]                 = {"monospace:size=10"};
-static const float rootcolor[]             = COLOR(0x000000ff);
-/* This conforms to the xdg-protocol. Set the alpha to zero to restore the old behavior */
-static const float fullscreen_bg[]         = {0.0f, 0.0f, 0.0f, 1.0f}; /* You can also use glsl colors */
-static uint32_t colors[][3]                = {
+static const unsigned int borderpx         = 2;  /* border pixel of windows */
+static const int showbar                   = 1;  /* 0 means no bar */
+static const int topbar                    = 1;  /* 0 means bottom bar */
+static const char *fonts[]                 = {"JetBrainsMono Nerd Font:size=12"};
+
+/* Nord + Detective Conan */
+static const float rootcolor[]             = COLOR(0x2e3440ff);
+static const float fullscreen_bg[]         = COLOR(0x2e3440ff);
+
+static uint32_t colors[][3] = {
 	/*               fg          bg          border    */
-	[SchemeNorm] = { 0xbbbbbbff, 0x222222ff, 0x444444ff },
-	[SchemeSel]  = { 0xeeeeeeff, 0x005577ff, 0x005577ff },
-	[SchemeUrg]  = { 0,          0,          0x770000ff },
+	[SchemeNorm] = { 0xd8dee9ff, 0x2e3440ff, 0x4c566aff },
+	[SchemeSel]  = { 0xeceff4ff, 0x5e81acff, 0x81a1c1ff },
+	[SchemeUrg]  = { 0xeceff4ff, 0xbf616aff, 0xd08770ff },
 };
 
 /* tagging */
@@ -74,8 +77,8 @@ static const struct xkb_rule_names xkb_rules = {
 	.options = NULL,
 };
 
-static const int repeat_rate = 25;
-static const int repeat_delay = 600;
+static const int repeat_rate = 35;
+static const int repeat_delay = 300;
 
 /* Trackpad */
 static const int tap_to_click = 1;
@@ -168,7 +171,6 @@ static const Key keys[] = {
 
 	/* Stack / master */
 
-	
 	/* Focus (vim keys) */
 	{ MODKEY,                     XKB_KEY_h,           focusdir,         {.ui = 0} },
 	{ MODKEY,                     XKB_KEY_l,           focusdir,         {.ui = 1} },
