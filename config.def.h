@@ -39,6 +39,7 @@ static const char *const autostart[] = {
         //"wbg", "~/Pictures/wallpapers/LADO_B_WALLPAPER.png", NULL,
 	"swww-daemon", "&", NULL,
 	"wl-paste", "--watch", "cliphist", "store", NULL,
+	"awww-daemon", NULL,
         NULL /* terminate */
 };
 static const Rule rules[] = {
@@ -64,6 +65,10 @@ static const MonitorRule monrules[] = {
    /* name        mfact  nmaster scale layout       rotate/reflect                x    y
     * example of a HiDPI laptop monitor:
     { "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }, */
+	{ "DP-1",     0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   1920, 0 },
+	{ "HDMI-A-1", 0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   0,    0 },
+
+	/* default fallback (laptop / unknown monitor) */
 	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
 	/* default monitor rule: can be changed but cannot be eliminated; at least one monitor rule must exist */
 };
@@ -74,7 +79,11 @@ static const struct xkb_rule_names xkb_rules = {
 	/* example:
 	.options = "ctrl:nocaps",
 	*/
-	.options = NULL,
+	.rules = NULL,
+	.model = NULL,
+	.layout = "us, latam",
+	.variant = NULL,
+	.options = "grp:alt_space_toggle",
 };
 
 static const int repeat_rate = 35;
